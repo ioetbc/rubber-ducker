@@ -6,7 +6,7 @@ const main = () => {
     res.send("BOOOOM");
   });
   app.listen(3002, () => {
-    console.log("listendxaing on port 3002");
+    console.log("listenddxaing on port 3002");
   });
 };
 
