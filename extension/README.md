@@ -1,4 +1,4 @@
-# rubber-ducker-2 README
+# rubber-ducker-2 extension README
 
 ## Run the extension locally
 
@@ -8,7 +8,9 @@
 
 ## What files do
 
-`RubberDuckerPanel` this links to a page. the pages live `src/webviews/pages` for each page you will have a panel.
+1. `RubberDuckerPanel` this links to a page. the pages live `src/webviews/pages` for each page you will have a panel.
+
+2. To call a route in the ap you need to call it with an authorization header set to the accessToken. To do this in the svelete components you call `tsvscode.postMessage({ type: 'getToken', value: undefined})` which will post a message to the provider. In the provider in the `onDidRecieveMessage` switch statement you create a case called `getToken` which then calls `TokenManager.getToken()` which will return the accessToken. The access token can then be used to called protected routes in the api.
 
 ### To send messages from the webview to the provider
 

@@ -1,11 +1,12 @@
 require("dotenv-safe").config();
 import { Strategy } from "passport-github";
 import passport from "passport";
+import jwt from "jsonwebtoken";
 
 import { findUser, createUser } from "./db";
 
 export const authenticateUser = (app: any) => {
-  passport.serializeUser(function (user: any, done: any) {
+  passport.serializeUser((user: any, done: any) => {
     done(null, user.accessToken);
   });
   app.use(passport.initialize());
@@ -18,16 +19,26 @@ export const authenticateUser = (app: any) => {
       },
       async (_, __, profile: any, done) => {
         let user = await findUser({ github_id: profile.id });
-        const { username, id } = profile;
 
+        // might want to update the user if it exists e.g. avatar
         if (!user) {
+          const { username, id } = profile;
           await createUser({
             username,
             avatar_url: profile._json.avatar_url,
             github_id: id,
           });
         }
-        done(null, { accessToken: "dwdwdwd", refreshToken: "" });
+        done(null, {
+          accessToken: jwt.sign(
+            { userId: user.github_id },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "1y",
+            }
+          ),
+          refreshToken: "",
+        });
       }
     )
   );
@@ -35,8 +46,8 @@ export const authenticateUser = (app: any) => {
   app.get(
     "/auth/github/callback",
     passport.authenticate("github", { session: false }),
-    function (_req: any, res: any) {
-      res.send("you logged in correctly");
+    function (req: any, res: any) {
+      res.redirect(`http://localhost:54321/auth/${req.user.accessToken}`);
     }
   );
 };

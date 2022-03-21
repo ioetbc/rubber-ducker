@@ -1,12 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { authenticate } from "./authenticate";
 import { RubberDuckerPanel } from "./RubberDuckerPanel";
 import { SidebarProvider } from "./SidebarProvider";
+import { TokenManager } from "./tokenManager";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  TokenManager.globalState = context.globalState;
+
   const sidebarProvider = new SidebarProvider(context.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -37,7 +41,18 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("rubber-ducker-2.helloWorld", () => {
-      RubberDuckerPanel.createOrShow(context.extensionUri);
+      // RubberDuckerPanel.createOrShow(context.extensionUri);
+      // console.log("token value is", TokenManager.getToken());
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("rubber-ducker-2.authenticate", () => {
+      try {
+        authenticate();
+      } catch (error) {
+        console.log(error);
+      }
     })
   );
 

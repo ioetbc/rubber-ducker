@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
+import { apiBaseUrl } from "./constants";
+import { TokenManager } from "./tokenManager";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -11,9 +13,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this._view = webviewView;
 
     webviewView.webview.options = {
-      // Allow scripts in the webview
       enableScripts: true,
-
       localResourceRoots: [this._extensionUri],
     };
 
@@ -26,6 +26,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           vscode.window.showInformationMessage(data.value);
+          break;
+        }
+        case "getToken": {
+          webviewView.webview.postMessage({
+            type: "token",
+            value: TokenManager.getToken(),
+          });
           break;
         }
         case "onError": {
@@ -64,13 +71,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-                <meta http-equiv="Content-Security-Policy" content="" img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
+                <meta http-equiv="Content-Security-Policy" content="" img-src https: data:; style-src 'unsafe-inline' ${
+                  webview.cspSource
+                }; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
                 <link href="${styleMainUri}" rel="stylesheet">
                 <script nonce="${nonce}">
                     const tsvscode = acquireVsCodeApi()
+                    const apiBaseUrl = ${JSON.stringify(apiBaseUrl)}
                 </script>
 			</head>
             <body>
