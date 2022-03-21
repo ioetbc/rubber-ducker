@@ -47,16 +47,12 @@ import { onMount } from "svelte";
 <div>{JSON.stringify(todos)}</div>
 
 <button on:click={() => {
-    tsvscode.postMessage({
-        type: 'onInfo',
-        value: 'some info'
-    })
-}}>click this for info</button>
+    tsvscode.postMessage({ type: 'authenticate', value: undefined})
+}}>login with github</button>
 
 <button on:click={() => {
-    tsvscode.postMessage({
-        type: 'onError',
-        value: 'there was an error'
-    })
-}}>click this for error</button>
+    accessToken = ''
+    user = null
+    tsvscode.postMessage({ type: 'logout', value: undefined})
+}}>logout</button>
 
