@@ -1,71 +1,13 @@
 import "reflect-metadata";
 require("dotenv-safe").config();
 import express from "express";
-import { Client } from "pg";
 import { Strategy as GitHubStrategy } from "passport-github";
 import passport from "passport";
+import { findUser, createUser } from "./utils/db";
 
 import { __prod__ } from "./constants";
 
 const main = async () => {
-  const client = new Client({
-    port: 5432,
-    database: "rubber-ducker",
-    host: "localhost",
-  });
-
-  const client2 = new Client({
-    port: 5432,
-    database: "rubber-ducker",
-    host: "localhost",
-  });
-
-  const createUser = async ({
-    username,
-    avatar_url,
-    github_id,
-  }: {
-    username: string;
-    avatar_url: string;
-    github_id: string;
-  }) => {
-    console.log("hmmm", { username, avatar_url, github_id });
-    return (
-      client2
-        .connect()
-        .then(() => console.log("connected to the db"))
-        .then(() =>
-          client2.query("insert into users values ($1, $2, $3)", [
-            username,
-            avatar_url,
-            github_id,
-          ])
-        )
-        // .then(() => client2.query("select * from users"))
-        .then((result: any) => result.rows)
-        .catch((e: any) => console.log(e))
-        .finally(() => {
-          console.log("killing the cliebnt 2");
-          client2.end();
-        })
-    );
-  };
-
-  const findUser = async ({ github_id }: { github_id: string }) => {
-    return client
-      .connect()
-      .then(() => console.log("connected to the db"))
-      .then(() =>
-        client.query("select * from users where github_id = $1;", [github_id])
-      )
-      .then((result: any) => result.rows)
-      .catch((e: any) => console.log(e))
-      .finally(() => {
-        console.log("killing the cliebnt 1");
-        client.end();
-      });
-  };
-
   const app = express();
 
   // START OF GITHUB 0AUTH
@@ -83,10 +25,9 @@ const main = async () => {
       async (_, __, profile: any, done) => {
         console.log(profile);
         let user = await findUser({ github_id: profile.id });
-        console.log("user", user);
         const { username, id } = profile;
 
-        if (!user.length) {
+        if (user.length === 0) {
           await createUser({
             username,
             avatar_url: profile._json.avatar_url,
@@ -94,9 +35,6 @@ const main = async () => {
           });
         }
         done(null, { accessToken: "dwdwdwd", refreshToken: "" });
-        // User.findOrCreate({ githubId: profile.id }, function (err, user) {
-        //   return done(err, user);
-        // });
       }
     )
   );
