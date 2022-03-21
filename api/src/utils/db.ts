@@ -14,7 +14,6 @@ export const findUser = async ({ github_id }: { github_id: string }) => {
     .then((result: any) => result.rows)
     .catch((e: any) => console.log(e))
     .finally(() => {
-      console.log("killing the clien 1");
       client.end();
     });
 };
@@ -36,7 +35,6 @@ export const createUser = async ({
 
   return client
     .connect()
-    .then(() => console.log("connected to the db"))
     .then(() =>
       client.query("insert into users values ($1, $2, $3)", [
         username,
@@ -47,7 +45,6 @@ export const createUser = async ({
     .then((result: any) => result.rows)
     .catch((e: any) => console.log(e))
     .finally(() => {
-      console.log("killing the cliebnt 2");
       client.end();
     });
 };
