@@ -1,21 +1,23 @@
-import { Client } from "pg";
+import { Pool } from "pg";
+
+const pool = new Pool({
+  port: 5432,
+  database: "rubber-ducker",
+  host: "localhost",
+});
 
 export const findUser = async ({ github_id }: { github_id: string }) => {
-  const client = new Client({
-    port: 5432,
-    database: "rubber-ducker",
-    host: "localhost",
-  });
-  return client
+  return pool
     .connect()
-    .then(() =>
-      client.query("select * from users where github_id = $1;", [github_id])
-    )
-    .then((result: any) => result.rows)
-    .catch((e: any) => console.log(e))
-    .finally(() => {
-      client.end();
-    });
+    .then(async (client) => {
+      return client
+        .query("select * from users where github_id = $1;", [github_id])
+        .then((result: any) => {
+          client.release();
+          return result.rows[0];
+        });
+    })
+    .catch((e: any) => console.log(e));
 };
 
 export const createUser = async ({
@@ -27,24 +29,16 @@ export const createUser = async ({
   avatar_url: string;
   github_id: string;
 }) => {
-  const client = new Client({
-    port: 5432,
-    database: "rubber-ducker",
-    host: "localhost",
-  });
-
-  return client
+  return pool
     .connect()
-    .then(() =>
-      client.query("insert into users values ($1, $2, $3)", [
-        username,
-        github_id,
-        avatar_url,
-      ])
-    )
-    .then((result: any) => result.rows)
-    .catch((e: any) => console.log(e))
-    .finally(() => {
-      client.end();
-    });
+    .then(async (client) => {
+      return client
+        .query("insert into users values ($1, $2, $3)", [
+          username,
+          github_id,
+          avatar_url,
+        ])
+        .then(() => client.release());
+    })
+    .catch((e: any) => console.log(e));
 };

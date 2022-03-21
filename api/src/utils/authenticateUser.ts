@@ -20,7 +20,7 @@ export const authenticateUser = (app: any) => {
         let user = await findUser({ github_id: profile.id });
         const { username, id } = profile;
 
-        if (user.length === 0) {
+        if (!user) {
           await createUser({
             username,
             avatar_url: profile._json.avatar_url,
