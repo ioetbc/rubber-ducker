@@ -12,9 +12,11 @@
 
 2. To call a route in the ap you need to call it with an authorization header set to the accessToken. To do this in the svelete components you call `tsvscode.postMessage({ type: 'getToken', value: undefined})` which will post a message to the provider. In the provider in the `onDidRecieveMessage` switch statement you create a case called `getToken` which then calls `TokenManager.getToken()` which will return the accessToken. The access token can then be used to called protected routes in the api.
 
+3. login button just posts a message with a type of `authenticate` again the post message will be picked up by the `onDidRecieveMessage` function in the sidebarProvider.
+
 ### To send messages from the webview to the provider
 
-you can get the panel and the components / pages to speak to eachother by using something like `tsvscode.postMessage` this will post a message from the component to the provider and you can pick the data up by listening for the events in the `onDidReceiveMessage` hook within the provider
+you can get the panel and the components / pages to speak to eachother by using something like `tsvscode.postMessage` this will post a message from the component to the provider and you can pick the data up by listening for the events in the `onDidReceiveMessage` hook within the provider. The authenticate case calls the authenticate function with a callback. The authenticate function starts a polka server and listens on port 5431. It thjen calls `localhost:3002/auth/github` which is an express route in the api at the route will call res.redirect`(http://localhost:54321/auth/${req.user.accessToken});` which the extension is listening out for here `app.get("/auth/:token", async (req, res) => {` this will then save the token in the global webview state. Once it has saved the token it will call the callback function `webviewView.webview.postMessage({ type: "token", value: TokenManager.getToken() });` which posts a message to the webview with a value take from the global state which we just updated. In the svelete file we have a `window.addEventListener('message', async event => {` which listens out for the messages in a switch statement and then calls the `/me` endpoint in the api to check it is a valis auth token and returns the user.
 
 ### To send messages from the provider to the webview
 
