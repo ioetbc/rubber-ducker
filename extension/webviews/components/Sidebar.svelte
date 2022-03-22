@@ -1,12 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { User } from "../../types";
+  import type { User } from "../../src/types";
+
+  import Avatar from "./Avatar.svelte";
 
   let todos: Array<{ text: string; completed: boolean }> = [];
   let loading = true;
   let user: User | null = null;
   let accessToken = "";
-  let users: User = [];
+  let users: User[] = [];
   let technologyfilters: Array<{ language: string; proficency: number }> = [];
 
   onMount(async () => {
@@ -50,13 +52,7 @@
 {#if loading}
   <p>loading...</p>
 {:else if user}
-  <!-- <pre>{JSON.stringify(user, null, 2)}</pre> -->
-  <ul>
-    <li>
-      <img src={user.avatar_url} alt="profile avatar" />
-      <p>{user.username}</p>
-    </li>
-  </ul>
+  <Avatar {user} />
 {:else}
   <button
     on:click={() => {
@@ -101,15 +97,11 @@
     console.log("users", users);
   }}>FIND HELPERS</button
 >
-
-{#each users as user}
-  <ul>
-    <li>
-      <img src={user.avatar_url} alt="profile avatar" />
-      <p>{user.username}</p>
-    </li>
-  </ul>
-{/each}
+<div class="helper-wrapper">
+  {#each users as user}
+    <Avatar {user} />
+  {/each}
+</div>
 
 <button
   on:click={() => {
@@ -118,3 +110,11 @@
     tsvscode.postMessage({ type: "logout", value: undefined });
   }}>logout</button
 >
+
+<style>
+  .helper-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 50px;
+  }
+</style>

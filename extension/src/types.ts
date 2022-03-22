@@ -1,4 +1,4 @@
-export type User = Array<{
+export type User = {
   avatar_url: string;
   bio: string;
   crypto_wallet_address: string;
@@ -20,4 +20,4 @@ export type User = Array<{
   tensorflow: number;
   text_message_consent: string;
   username: string;
-}>;
+};
