@@ -5,6 +5,7 @@ import { authenticateUser } from "./utils/authenticateUser";
 import { findUser } from "./utils/db";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import { isAuth } from "./isAuth";
 
 const main = async () => {
   const app = express();
@@ -13,6 +14,7 @@ const main = async () => {
       origin: "*",
     })
   );
+  app.use(express.json());
   authenticateUser(app);
 
   app.get("/me", async (req, res) => {
@@ -53,6 +55,20 @@ const main = async () => {
     console.log("wtf", user);
 
     res.send({ user });
+    return;
+  });
+
+  app.post("/todo", isAuth, (req: any, res) => {
+    console.log("the fucking todo", req.body);
+    console.log("req.userId", req.userId);
+    res.send({ text: "lol we autheticated bothc and" });
+    return;
+  });
+
+  app.post("/allUsers", isAuth, (req: any, res) => {
+    console.log("the fucking todo", req.body);
+    console.log("req.userId", req.userId);
+    res.send({ text: "lol we autheticated bothc and" });
     return;
   });
 

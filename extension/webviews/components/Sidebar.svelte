@@ -1,10 +1,11 @@
 <script lang='ts'>
+
 import { onMount } from "svelte";
     let todos: Array<{ text: string; completed: boolean }> = []
     let loading = true
     let user: { name: string, github_id: string, avatar_url: string } | null = null
     let accessToken = ''
-
+    let haha = 'not lads'
     onMount(async () => {
     window.addEventListener('message', async event => {
         const message = event.data;
@@ -55,4 +56,22 @@ import { onMount } from "svelte";
     user = null
     tsvscode.postMessage({ type: 'logout', value: undefined})
 }}>logout</button>
+
+<button on:click={ async () => {
+const res = await fetch(`${apiBaseUrl}/users`, {
+    method: 'POST',
+    body: JSON.stringify({ text: 'fuck bitch' }),
+    headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${accessToken} `
+    }
+})
+
+const resp = await res.json()
+haha = resp.text
+console.log('haha', haha)
+
+}}>return all users in db</button>
+
+<p>lads {haha}</p>
 
