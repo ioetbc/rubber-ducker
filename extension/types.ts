@@ -1,0 +1,23 @@
+export type User = Array<{
+  avatar_url: string;
+  bio: string;
+  crypto_wallet_address: string;
+  css: number;
+  dynamo_db: number;
+  email_marketing_consent: string;
+  github_id: string;
+  html: number;
+  id: string;
+  javascript: number;
+  node: number;
+  phone_number: string;
+  postgres: number;
+  python: number;
+  react: number;
+  stripe_client_id: string;
+  svelete: number;
+  teacher: string;
+  tensorflow: number;
+  text_message_consent: string;
+  username: string;
+}>;

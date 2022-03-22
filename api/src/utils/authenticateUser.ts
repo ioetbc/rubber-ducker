@@ -19,7 +19,7 @@ export const authenticateUser = (app: any) => {
       },
       async (_, __, profile: any, done) => {
         let user = await findUser({ github_id: profile.id });
-
+        let userId = profile.id;
         // might want to update the user if it exists e.g. avatar
         if (!user) {
           const { username, id } = profile;
@@ -30,13 +30,9 @@ export const authenticateUser = (app: any) => {
           });
         }
         done(null, {
-          accessToken: jwt.sign(
-            { userId: user.github_id },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "1y",
-            }
-          ),
+          accessToken: jwt.sign({ userId }, process.env.JWT_SECRET, {
+            expiresIn: "1y",
+          }),
           refreshToken: "",
         });
       }

@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express from "express";
 
 import { authenticateUser } from "./utils/authenticateUser";
-import { findUser } from "./utils/db";
+import { findUser, findUsers } from "./utils/db";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import { isAuth } from "./isAuth";
@@ -52,7 +52,6 @@ const main = async () => {
     }
 
     const user = await findUser({ github_id: userId });
-    console.log("wtf", user);
 
     res.send({ user });
     return;
@@ -65,10 +64,22 @@ const main = async () => {
     return;
   });
 
-  app.post("/allUsers", isAuth, (req: any, res) => {
-    console.log("the fucking todo", req.body);
-    console.log("req.userId", req.userId);
-    res.send({ text: "lol we autheticated bothc and" });
+  app.post("/users", isAuth, async (req: any, res) => {
+    const { userId, body } = req;
+
+    if (!userId) {
+      res.send({ user: null });
+      return;
+    }
+
+    if (body.length < 1) {
+      res.send("No filters");
+      return;
+    }
+
+    const users = await findUsers(body);
+
+    res.send(users);
     return;
   });
 
