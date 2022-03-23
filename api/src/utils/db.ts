@@ -74,14 +74,25 @@ export const createUser = async ({
   return pool
     .connect()
     .then(async (client) => {
-      console.log("trying to insert");
+      console.log("trying to insert", github_id, username, avatar_url);
       return client
-        .query("insert into user_metadata values ($1, $2, $3)", [
-          github_id,
-          username,
-          avatar_url,
-        ])
+        .query(
+          "insert into user_metadata values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+          [
+            github_id,
+            username,
+            avatar_url,
+            "",
+            "",
+            false,
+            false,
+            false,
+            "",
+            null,
+            false,
+          ]
+        )
         .then(() => client.release());
     })
-    .catch((e: any) => console.log(e));
+    .catch((e: any) => console.error("error creating user", e));
 };
