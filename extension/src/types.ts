@@ -21,4 +21,5 @@ export type User = {
   text_message_consent: string;
   username: string;
   has_completed_onboarding: string;
+  per_hour_rate: string;
 };

@@ -23,6 +23,7 @@ export const updateUser = async ({
       teacher,
       stripe_client_id,
       has_completed_onboarding,
+      per_hour_rate,
     } = body;
 
     console.log("email_marketing_consent", email_marketing_consent);
@@ -37,8 +38,9 @@ export const updateUser = async ({
           text_message_consent = $5,
           teacher = $6,
           stripe_client_id = $7,
-          has_completed_onboarding = $8
-        WHERE github_id = $9
+          has_completed_onboarding = $8,
+          per_hour_rate = $9
+        WHERE github_id = $10
       `,
       [
         username,
@@ -49,6 +51,7 @@ export const updateUser = async ({
         teacher,
         stripe_client_id,
         has_completed_onboarding,
+        per_hour_rate,
         github_id,
       ]
     );
@@ -118,7 +121,7 @@ export const createUser = async ({
     .then(async (client) => {
       return client
         .query(
-          "insert into user_metadata values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+          "insert into user_metadata values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
           [
             github_id,
             username,
@@ -131,6 +134,7 @@ export const createUser = async ({
             "",
             null,
             false,
+            100,
           ]
         )
         .then(() => client.release());

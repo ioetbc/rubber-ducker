@@ -14,10 +14,8 @@
     stripe_client_id: user.stripe_client_id,
     crypto_wallet_address: "wodjwdowdowdk",
     has_completed_onboarding: "true",
-    // per_hour_rate: user.per_hour_rate,
+    per_hour_rate: user.per_hour_rate,
   };
-
-  // migration to add per_hour_rate
 
   const handleUsername = (event: any) => {
     payload.username = event?.target?.value;
@@ -41,6 +39,12 @@
 
   const handleTeacherConsent = (event: any) => {
     payload.teacher = event?.target?.value;
+  };
+
+  const handlePerHourRate = (event: any) => {
+    const perHourRateSelected: any = document.getElementById("per-hour-rate");
+    console.log("perHourRateSelected", perHourRateSelected.value);
+    payload.per_hour_rate = perHourRateSelected.value;
   };
 
   const handleFormSubmit = async (event: any) => {
@@ -155,15 +159,11 @@
   <button type="submit">submit changes</button>
 </form>
 
-<!-- <div class="input-wrapper">
+<div class="input-wrapper">
   <label for="per-hour-rate">what is your per hour rate</label>
   <p>amount people will pay you per hour to get help with their projects</p>
 
-  <select
-    name="per-hour-rate"
-    id="per-hour-rate"
-    on:blur={() => getPerHourRateSelection()}
-  >
+  <select name="per-hour-rate" id="per-hour-rate" on:input={handlePerHourRate}>
     <option value="0">0</option>
     <option value="10">10</option>
     <option value="20">20</option>
@@ -188,7 +188,7 @@
   </select>
 </div>
 
-<div class="input-wrapper">
+<!-- <div class="input-wrapper">
   <label for="technologies">what languages do you know?</label>
   <p>anything from html to dyanmodb (the more niche the better)</p>
   <select
