@@ -61,22 +61,4 @@
 </div>
 
 <style>
-  .helper-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 50px;
-  }
-  ul {
-    list-style: none;
-    padding-left: 0;
-  }
-  .avatar-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .avatar-image {
-    width: 50px;
-    border-radius: 50%;
-  }
 </style>

@@ -2,10 +2,11 @@ import "reflect-metadata";
 import express from "express";
 
 import { authenticateUser } from "./utils/authenticateUser";
-import { findUser, findUsers } from "./utils/db";
+import { findUser, findUsers, updateUser } from "./utils/db";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import { isAuth } from "./isAuth";
+
 const io = require("socket.io")(3003, {
   cors: {
     origin: "*",
@@ -78,6 +79,20 @@ const main = async () => {
     }
 
     const users = await findUsers(body);
+
+    res.send(users);
+    return;
+  });
+
+  app.put("/updateProfile", isAuth, async (req: any, res) => {
+    const { userId, body } = req;
+
+    if (!userId) {
+      res.send({ user: null });
+      return;
+    }
+
+    const users = await updateUser({ body, github_id: userId });
 
     res.send(users);
     return;

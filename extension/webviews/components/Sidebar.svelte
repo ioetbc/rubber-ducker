@@ -1,10 +1,12 @@
 <script lang="ts">
   import { io } from "socket.io-client";
   import { onMount } from "svelte";
+  import yn from "yn";
   import type { User } from "../../src/types";
   import Avatar from "./Avatar.svelte";
 
   import FindTeacher from "./FindTeacher.svelte";
+  import OnBoarding from "./OnBoarding.svelte";
 
   let todos: Array<{ text: string; completed: boolean }> = [];
   let loading = true;
@@ -44,6 +46,7 @@
           });
           const data = await response.json();
           user = data.user;
+          console.log(user);
           loading = false;
           break;
       }
@@ -56,33 +59,40 @@
   };
 </script>
 
-{#if loading}
-  <p>loading...</p>
-{:else if user}
-  <Avatar {user} />
+<!-- {#if loading}
+  <p>loading...</p> -->
 
-  <FindTeacher {accessToken} />
-
-  <button
-    on:click={() => {
-      accessToken = "";
-      user = null;
-      tsvscode.postMessage({ type: "logout", value: undefined });
-    }}>logout</button
-  >
-
-  <button
-    on:click={() => {
-      sendMessage("socker.io is fucking working????");
-    }}>send message</button
-  >
-{:else}
+{#if !user}
   <button
     on:click={() => {
       tsvscode.postMessage({ type: "authenticate", value: undefined });
     }}>login with github</button
   >
 {/if}
+
+{#if user && !yn(user.has_completed_onboarding)}
+  <OnBoarding {user} {accessToken} />
+{/if}
+
+{#if user && yn(user.has_completed_onboarding)}
+  <Avatar {user} />
+
+  <FindTeacher {accessToken} />
+
+  <button
+    on:click={() => {
+      sendMessage("socker.io is fucking working????");
+    }}>send message</button
+  >
+{/if}
+
+<button
+  on:click={() => {
+    accessToken = "";
+    user = null;
+    tsvscode.postMessage({ type: "logout", value: undefined });
+  }}>logout</button
+>
 
 <!-- {#if page === "settings"}
     <p>THIS IS THE SETTINGS PAGE</p>

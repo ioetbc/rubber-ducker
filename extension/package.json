@@ -107,6 +107,7 @@
   },
   "dependencies": {
     "polka": "^0.5.2",
-    "socket.io-client": "^4.4.1"
+    "socket.io-client": "^4.4.1",
+    "yn": "^5.0.0"
   }
 }

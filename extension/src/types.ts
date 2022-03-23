@@ -20,4 +20,5 @@ export type User = {
   tensorflow: number;
   text_message_consent: string;
   username: string;
+  has_completed_onboarding: string;
 };

@@ -49,7 +49,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("rubber-ducker-2.authenticate", () => {
       try {
-        authenticate();
+        authenticate(() => {
+          sidebarProvider._view?.webview.postMessage({
+            type: "token",
+            value: TokenManager.getToken(),
+          });
+        });
       } catch (error) {
         console.log(error);
       }
