@@ -1,17 +1,33 @@
 <script lang="ts">
+  import { io } from "socket.io-client";
   import { onMount } from "svelte";
   import type { User } from "../../src/types";
-
   import Avatar from "./Avatar.svelte";
+
+  import FindTeacher from "./FindTeacher.svelte";
 
   let todos: Array<{ text: string; completed: boolean }> = [];
   let loading = true;
   let user: User | null = null;
   let accessToken = "";
-  let users: User[] = [];
-  let technologyfilters: Array<{ language: string; proficency: number }> = [];
+  let socket: any;
+  let chatMessage: any = [];
+  let page: "settings" | "contact" = tsvscode.getState()?.page || "settings";
+
+  //called whenever the vars change (like useEffect)
+  $: {
+    tsvscode.setState({ page });
+  }
 
   onMount(async () => {
+    socket = io("http://localhost:3003");
+
+    socket.on("connect", () => {
+      socket.on("message-from-server", (message: string) => {
+        chatMessage = [message, ...chatMessage];
+      });
+    });
+
     window.addEventListener("message", async (event) => {
       const message = event.data;
 
@@ -35,24 +51,31 @@
     tsvscode.postMessage({ type: "getToken", value: undefined });
   });
 
-  function getSelection() {
-    const technologySelected: any = document.getElementById("technologies");
-    console.log("technologySelected", technologySelected);
-    if (technologySelected) {
-      technologyfilters.push({
-        language: technologySelected.value,
-        proficency: 5,
-      });
-      technologyfilters = technologyfilters;
-    }
-    console.log("technologyfilters", technologyfilters);
-  }
+  const sendMessage = (message: string) => {
+    socket.emit("message-from-client", message);
+  };
 </script>
 
 {#if loading}
   <p>loading...</p>
 {:else if user}
   <Avatar {user} />
+
+  <FindTeacher {accessToken} />
+
+  <button
+    on:click={() => {
+      accessToken = "";
+      user = null;
+      tsvscode.postMessage({ type: "logout", value: undefined });
+    }}>logout</button
+  >
+
+  <button
+    on:click={() => {
+      sendMessage("socker.io is fucking working????");
+    }}>send message</button
+  >
 {:else}
   <button
     on:click={() => {
@@ -61,60 +84,14 @@
   >
 {/if}
 
-<label for="technologies">Choose a technology:</label>
-
-<!-- TODO get the columns from the db instead of hardcoding -->
-<select name="technologies" id="technologies" on:blur={() => getSelection()}>
-  <option value="javascript">javascript</option>
-  <option value="html">html</option>
-  <option value="css">css</option>
-  <option value="node">node</option>
-  <option value="python">python</option>
-  <option value="react">react</option>
-  <option value="svelte">svelte</option>
-  <option value="postgres">postgres</option>
-  <option value="dynamo_db">dynamo_db</option>
-  <option value="tensorflow">tensorflow</option>
-</select>
-
-{#each technologyfilters as filter}
-  <p>{filter.language}</p>
-{/each}
-
-<button
-  on:click={async () => {
-    const res = await fetch(`${apiBaseUrl}/users`, {
-      method: "POST",
-      body: JSON.stringify(technologyfilters),
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${accessToken} `,
-      },
-    });
-
-    const resp = await res.json();
-    users = resp;
-    console.log("users", users);
-  }}>FIND HELPERS</button
->
-<div class="helper-wrapper">
-  {#each users as user}
-    <Avatar {user} />
-  {/each}
-</div>
-
-<button
-  on:click={() => {
-    accessToken = "";
-    user = null;
-    tsvscode.postMessage({ type: "logout", value: undefined });
-  }}>logout</button
->
-
-<style>
-  .helper-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 50px;
-  }
-</style>
+<!-- {#if page === "settings"}
+    <p>THIS IS THE SETTINGS PAGE</p>
+    <button on:click={() => (page = "contact")}
+      >change to the contact page</button
+    >
+  {:else}
+    <p>THIS IS THE CONTACT PAGE</p>
+    <button on:click={() => (page = "settings")}
+      >change to the settings page</button
+    >
+  {/if} -->

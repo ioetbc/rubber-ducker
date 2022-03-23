@@ -6,6 +6,16 @@ import { findUser, findUsers } from "./utils/db";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import { isAuth } from "./isAuth";
+const io = require("socket.io")(3003, {
+  cors: {
+    origin: "*",
+    // origin: [
+    //   "*",
+    //   "vscode-webview://webviewview-rubber-ducker-sidebar",
+    //   "http://localhost:3000",
+    // ],
+  },
+});
 
 const main = async () => {
   const app = express();
@@ -21,7 +31,6 @@ const main = async () => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      console.log("no auth header");
       res.send({ user: null });
       return;
     }
@@ -38,7 +47,6 @@ const main = async () => {
 
     try {
       const payload: any = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("payload bioth", payload);
       userId = payload.userId;
     } catch (error) {
       res.send({ user: null });
@@ -46,7 +54,6 @@ const main = async () => {
     }
 
     if (!userId) {
-      console.log("no user id");
       res.send({ user: null });
       return;
     }
@@ -54,13 +61,6 @@ const main = async () => {
     const user = await findUser({ github_id: userId });
 
     res.send({ user });
-    return;
-  });
-
-  app.post("/todo", isAuth, (req: any, res) => {
-    console.log("the fucking todo", req.body);
-    console.log("req.userId", req.userId);
-    res.send({ text: "lol we autheticated bothc and" });
     return;
   });
 
@@ -86,8 +86,16 @@ const main = async () => {
   app.get("/", (_, res) => {
     res.send("BOOOOM");
   });
+
   app.listen(3002, () => {
     console.log("listening on port 3002");
+  });
+
+  io.on("connection", (socket: any) => {
+    socket.on("message-from-client", (message: string) => {
+      console.log("the fucking message that was sent from the client", message);
+      socket.broadcast.emit("message-from-server", message);
+    });
   });
 };
 

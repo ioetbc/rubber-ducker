@@ -10,6 +10,7 @@ export const authenticate = (cb: () => void) => {
     const { token } = req.params;
     if (!token) {
       res.end("<h1>something went wrong</h1>");
+      app.server?.close();
       return;
     }
 
@@ -18,7 +19,7 @@ export const authenticate = (cb: () => void) => {
     await TokenManager.setToken(token);
     cb();
 
-    res.end("<h1>auth was successgul you can close this shit</h1>");
+    res.end("<h1>auth was successful you can close this shit</h1>");
 
     app.server?.close();
   });
