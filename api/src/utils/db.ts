@@ -24,11 +24,21 @@ export const updateUser = async ({
       stripe_client_id,
       has_completed_onboarding,
       per_hour_rate,
+      javascript,
+      html,
+      css,
+      node,
+      python,
+      react,
+      svelte,
+      postgres,
+      dynamo_db,
+      tensorflow,
     } = body;
 
-    console.log("email_marketing_consent", email_marketing_consent);
-    return client.query(
-      `
+    return client
+      .query(
+        `
         UPDATE user_metadata
         SET
           username = $1,
@@ -42,19 +52,51 @@ export const updateUser = async ({
           per_hour_rate = $9
         WHERE github_id = $10
       `,
-      [
-        username,
-        bio,
-        phone_number,
-        email_marketing_consent,
-        text_message_consent,
-        teacher,
-        stripe_client_id,
-        has_completed_onboarding,
-        per_hour_rate,
-        github_id,
-      ]
-    );
+        [
+          username,
+          bio,
+          phone_number,
+          email_marketing_consent,
+          text_message_consent,
+          teacher,
+          stripe_client_id,
+          has_completed_onboarding,
+          per_hour_rate,
+          github_id,
+        ]
+      )
+      .then(() => {
+        client.query(
+          `
+          UPDATE technologies
+          SET
+            javascript = $1,
+            html = $2,
+            css = $3,
+            node = $4,
+            python = $5,
+            react = $6,
+            svelte = $7,
+            postgres = $8,
+            dynamo_db = $9,
+            tensorflow = $10
+          WHERE github_id = $11
+        `,
+          [
+            javascript,
+            html,
+            css,
+            node,
+            python,
+            react,
+            svelte,
+            postgres,
+            dynamo_db,
+            tensorflow,
+            github_id,
+          ]
+        );
+      });
   });
 };
 
@@ -63,10 +105,18 @@ export const findUser = async ({ github_id }: { github_id: string }) => {
     .connect()
     .then(async (client) => {
       return client
-        .query("select * from user_metadata where github_id = $1;", [github_id])
+        .query("SELECT * FROM user_metadata WHERE github_id = $1;", [github_id])
         .then((result: any) => {
-          client.release();
           return result.rows[0];
+        })
+        .then(async (userMetaData) => {
+          const tech = await client.query(
+            "SELECT * FROM technologies WHERE github_id = $1;",
+            [github_id]
+          );
+          client.release();
+
+          return { ...userMetaData, ...tech.rows[0] };
         });
     })
     .catch((e: any) => console.log(e));
@@ -121,7 +171,7 @@ export const createUser = async ({
     .then(async (client) => {
       return client
         .query(
-          "insert into user_metadata values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
+          "INSERT INTO user_metadata VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
           [
             github_id,
             username,
@@ -137,7 +187,13 @@ export const createUser = async ({
             100,
           ]
         )
-        .then(() => client.release());
+        .then(() => {
+          client.query(
+            "INSERT INTO technologies VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+            [github_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          );
+          client.release();
+        });
     })
     .catch((e: any) => console.error("error creating user", e));
 };

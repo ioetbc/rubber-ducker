@@ -1,35 +1,23 @@
 <script lang="ts">
-  import { io } from "socket.io-client";
+  // import { io } from "socket.io-client";
   import { onMount } from "svelte";
   import yn from "yn";
   import type { User } from "../../src/types";
-  import Avatar from "./Avatar.svelte";
+  import isEmpty from "lodash/isEmpty";
 
+  import Avatar from "./Avatar.svelte";
   import FindTeacher from "./FindTeacher.svelte";
-  import OnBoarding from "./OnBoarding.svelte";
+  import Profile from "./Profile.svelte";
 
   let todos: Array<{ text: string; completed: boolean }> = [];
-  let loading = true;
   let user: User | null = null;
-  let accessToken = "";
-  let socket: any;
-  let chatMessage: any = [];
-  let page: "settings" | "contact" = tsvscode.getState()?.page || "settings";
 
-  //called whenever the vars change (like useEffect)
-  $: {
-    tsvscode.setState({ page });
-  }
+  let accessToken = "";
+  let page: "profile" | "contact" = tsvscode.getState()?.page || "profile";
+
+  $: tsvscode.setState({ page });
 
   onMount(async () => {
-    socket = io("http://localhost:3003");
-
-    socket.on("connect", () => {
-      socket.on("message-from-server", (message: string) => {
-        chatMessage = [message, ...chatMessage];
-      });
-    });
-
     window.addEventListener("message", async (event) => {
       const message = event.data;
 
@@ -46,23 +34,14 @@
           });
           const data = await response.json();
           user = data.user;
-          console.log(user);
-          loading = false;
           break;
       }
     });
     tsvscode.postMessage({ type: "getToken", value: undefined });
   });
-
-  const sendMessage = (message: string) => {
-    socket.emit("message-from-client", message);
-  };
 </script>
 
-<!-- {#if loading}
-  <p>loading...</p> -->
-
-{#if !user}
+{#if isEmpty(user)}
   <button
     on:click={() => {
       tsvscode.postMessage({ type: "authenticate", value: undefined });
@@ -70,20 +49,19 @@
   >
 {/if}
 
-{#if user && !yn(user.has_completed_onboarding)}
-  <OnBoarding {user} {accessToken} />
+{#if !isEmpty(user) && page === "profile"}
+  {#if user}
+    <Profile {user} {accessToken} />
+  {/if}
 {/if}
 
-{#if user && yn(user.has_completed_onboarding)}
-  <Avatar {user} />
-
+{#if !isEmpty(user) && yn(user?.has_completed_onboarding) && page !== "profile"}
+  {#if user}
+    <Avatar {user} />
+  {/if}
   <FindTeacher {accessToken} />
 
-  <button
-    on:click={() => {
-      sendMessage("socker.io is fucking working????");
-    }}>send message</button
-  >
+  <button on:click={() => (page = "profile")}>update profile</button>
 {/if}
 
 <button
@@ -93,15 +71,3 @@
     tsvscode.postMessage({ type: "logout", value: undefined });
   }}>logout</button
 >
-
-<!-- {#if page === "settings"}
-    <p>THIS IS THE SETTINGS PAGE</p>
-    <button on:click={() => (page = "contact")}
-      >change to the contact page</button
-    >
-  {:else}
-    <p>THIS IS THE CONTACT PAGE</p>
-    <button on:click={() => (page = "settings")}
-      >change to the settings page</button
-    >
-  {/if} -->

@@ -2,6 +2,7 @@ require("dotenv-safe").config();
 import { Strategy } from "passport-github";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+import isEmpty from "lodash/isEmpty";
 
 import { findUser, createUser } from "./db";
 
@@ -19,9 +20,10 @@ export const authenticateUser = (app: any) => {
       },
       async (_, __, profile: any, done) => {
         let user = await findUser({ github_id: profile.id });
+
         let userId = profile.id;
         // might want to update the user if it exists e.g. avatar
-        if (!user) {
+        if (isEmpty(user)) {
           const { username, id } = profile;
           await createUser({
             username,

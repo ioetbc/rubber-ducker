@@ -27,6 +27,7 @@ export default fs
           dev: !production,
           // we'll extract any component CSS out into
           // a separate file - better for performance
+          include: "webviews/**/*.svelte",
           css: (css) => {
             css.write(name + ".css");
           },
