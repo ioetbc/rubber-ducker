@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type { User } from "../../src/types";
+  import type { User, Page } from "../../src/types";
   import Avatar from "./Avatar.svelte";
 
   export let accessToken: string;
+  export let handlePageSelection: (arg0: Page) => void;
+  export let handleTeacherSelection: (arg0: User) => void;
 
   let technologyfilters: Array<{ language: string; proficency: number }> = [];
   let users: User[] = [];
@@ -30,6 +32,11 @@
         thing.proficency = Number(proficency.value);
       }
     });
+  };
+
+  const handleTeacher = (selectedTeacher: User) => {
+    handleTeacherSelection(selectedTeacher);
+    handlePageSelection("teacher");
   };
 </script>
 
@@ -97,7 +104,9 @@
 >
 <div class="helper-wrapper">
   {#each users as user}
-    <Avatar {user} />
+    <div on:click={() => handleTeacher(user)}>
+      <Avatar {user} />
+    </div>
   {/each}
 </div>
 

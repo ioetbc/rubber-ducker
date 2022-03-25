@@ -1,20 +1,18 @@
 <script lang="ts">
-  // import { io } from "socket.io-client";
   import { onMount } from "svelte";
-  import yn from "yn";
-  import type { User } from "../../src/types";
+  import type { User, Page } from "../../src/types";
   import { isEmpty } from "lodash";
 
   import Avatar from "./Avatar.svelte";
   import FindTeacher from "./FindTeacher.svelte";
   import Profile from "./Profile.svelte";
+  import Teacher from "./Teacher.svelte";
 
   let todos: Array<{ text: string; completed: boolean }> = [];
   let user: User | null = null;
-
+  let teacher: User | null = null;
   let accessToken = "";
-  let page: "profile" | "contact" | "homepage" =
-    tsvscode.getState()?.page || "profile";
+  let page: Page = tsvscode.getState()?.page || "profile";
 
   $: tsvscode.setState({ page });
 
@@ -40,6 +38,14 @@
     });
     tsvscode.postMessage({ type: "getToken", value: undefined });
   });
+
+  const handlePageSelection = (newPage: Page) => {
+    page = newPage;
+  };
+
+  const handleTeacherSelection = (selectedTeacher: User) => {
+    teacher = selectedTeacher;
+  };
 </script>
 
 {#if isEmpty(user)}
@@ -60,16 +66,17 @@
   {#if user}
     <Avatar {user} />
   {/if}
-  <FindTeacher {accessToken} />
+  <FindTeacher {handlePageSelection} {handleTeacherSelection} {accessToken} />
 
-  <button on:click={() => (page = "profile")}>update profile</button>
+  <button on:click={() => handlePageSelection("profile")}>update profile</button
+  >
 {/if}
 
-<button
-  on:click={() => {
-    page = "homepage";
-  }}>find teachers</button
->
+{#if page === "teacher" && teacher}
+  <Teacher {teacher} />
+{/if}
+
+<button on:click={() => handlePageSelection("homepage")}>find teachers</button>
 
 <button
   on:click={() => {

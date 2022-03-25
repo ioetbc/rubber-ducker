@@ -22,3 +22,5 @@ export type User = {
   css: number;
   dynamo_db: number;
 };
+
+export type Page = "profile" | "contact" | "homepage" | "teacher";
