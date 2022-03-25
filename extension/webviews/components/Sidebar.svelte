@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import yn from "yn";
   import type { User } from "../../src/types";
-  import isEmpty from "lodash/isEmpty";
+  import { isEmpty } from "lodash";
 
   import Avatar from "./Avatar.svelte";
   import FindTeacher from "./FindTeacher.svelte";
@@ -13,7 +13,8 @@
   let user: User | null = null;
 
   let accessToken = "";
-  let page: "profile" | "contact" = tsvscode.getState()?.page || "profile";
+  let page: "profile" | "contact" | "homepage" =
+    tsvscode.getState()?.page || "profile";
 
   $: tsvscode.setState({ page });
 
@@ -55,7 +56,7 @@
   {/if}
 {/if}
 
-{#if !isEmpty(user) && yn(user?.has_completed_onboarding) && page !== "profile"}
+{#if !isEmpty(user) && page === "homepage"}
   {#if user}
     <Avatar {user} />
   {/if}
@@ -63,6 +64,12 @@
 
   <button on:click={() => (page = "profile")}>update profile</button>
 {/if}
+
+<button
+  on:click={() => {
+    page = "homepage";
+  }}>find teachers</button
+>
 
 <button
   on:click={() => {

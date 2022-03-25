@@ -6,6 +6,7 @@
 
   let technologyfilters: Array<{ language: string; proficency: number }> = [];
   let users: User[] = [];
+  let advancedSearch: boolean = false;
 
   const getSelection = () => {
     const technologySelected: any = document.getElementById("technologies");
@@ -17,12 +18,23 @@
       technologyfilters = technologyfilters;
     }
   };
+
+  const handleAdvancedSearch = () => {
+    advancedSearch = true;
+  };
+
+  const handleTechnologyProficiency = (technology: string) => {
+    const proficency: any = document.getElementById("technology-proficiency");
+    technologyfilters.map((thing) => {
+      if (thing.language === technology) {
+        thing.proficency = Number(proficency.value);
+      }
+    });
+  };
 </script>
 
-<label for="technologies">Choose a technology:</label>
-
-<!-- TODO get the columns from the db instead of hardcoding -->
-<select name="technologies" id="technologies" on:blur={() => getSelection()}>
+<label for="technologies">choose a technology:</label>
+<select name="technologies" id="technologies" on:input={getSelection}>
   <option value="javascript">javascript</option>
   <option value="html">html</option>
   <option value="css">css</option>
@@ -39,6 +51,35 @@
   <p>{filter.language}</p>
 {/each}
 
+<button on:click={() => handleAdvancedSearch()}>advanced search</button>
+{#if advancedSearch}
+  <p>for each technology tell us how proficient the teacher needs to be</p>
+  <ul>
+    {#each technologyfilters as technology}
+      <div class="flex">
+        <li>{technology.language}</li>
+        <li>{technology.proficency}</li>
+        <select
+          name="proficiency"
+          id="technology-proficiency"
+          on:input={() => handleTechnologyProficiency(technology.language)}
+        >
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    {/each}
+  </ul>
+{/if}
+
 <button
   on:click={async () => {
     const res = await fetch(`${apiBaseUrl}/users`, {
@@ -52,7 +93,7 @@
 
     const resp = await res.json();
     users = resp;
-  }}>FIND HELPERS</button
+  }}>search</button
 >
 <div class="helper-wrapper">
   {#each users as user}

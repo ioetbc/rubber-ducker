@@ -72,6 +72,7 @@
       "technology-proficiency"
     );
 
+    // @ts-ignore
     payload[technology] = Number(technologyProficiencySelected.value);
     console.log("payload", payload);
   };
