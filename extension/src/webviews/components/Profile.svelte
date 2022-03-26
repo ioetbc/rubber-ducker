@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { User } from "../../src/types";
+  import type { User } from "../../types";
   import yn from "yn";
 
   export let user: User;

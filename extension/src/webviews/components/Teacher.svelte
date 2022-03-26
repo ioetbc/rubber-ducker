@@ -3,7 +3,7 @@
   import StarRating from "./StarRating.svelte";
   import Reviews from "./Reviews.svelte";
 
-  import type { User } from "../../src/types";
+  import type { User } from "../../types";
   import { onMount } from "svelte";
 
   export let teacher: User;

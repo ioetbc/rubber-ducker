@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { User, Page, TechnologyFilter } from "../../src/types";
+  import type { User, Page, TechnologyFilter } from "../../types";
   import Avatar from "./Avatar.svelte";
   import { handleTechnologyType } from "../utils/filterTeacher/index";
 
@@ -32,16 +32,17 @@
   const handleMinStarRating = () => {
     const minStarRating: any = document.getElementById("star-rating");
   };
+
+  const handleTechnologyInput = (event: any) => {
+    teacherFilters = handleTechnologyType({
+      teacherFilters,
+      value: event?.target?.value,
+    });
+  };
 </script>
 
 <label for="technologies">choose a technology:</label>
-<select
-  name="technologies"
-  id="technologies"
-  on:input={() => {
-    teacherFilters = handleTechnologyType({ teacherFilters });
-  }}
->
+<select name="technologies" id="technologies" on:input={handleTechnologyInput}>
   <option value="javascript">javascript</option>
   <option value="html">html</option>
   <option value="css">css</option>

@@ -26,3 +26,15 @@ export type User = {
 export type Page = "profile" | "contact" | "homepage" | "teacher";
 
 export type TechnologyFilter = Array<{ type: string; proficency: number }>;
+
+export type TechnologyTypes =
+  | "javascript"
+  | "html"
+  | "css"
+  | "node"
+  | "python"
+  | "react"
+  | "svelte"
+  | "postgres"
+  | "dynamo_db"
+  | "tensorflow";

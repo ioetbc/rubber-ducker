@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { User, Page } from "../../src/types";
+  import type { User, Page } from "../../types";
   import { isEmpty } from "lodash";
 
   import Avatar from "./Avatar.svelte";
