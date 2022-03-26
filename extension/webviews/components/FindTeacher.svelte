@@ -1,25 +1,15 @@
 <script lang="ts">
-  import type { User, Page } from "../../src/types";
+  import type { User, Page, TechnologyFilter } from "../../src/types";
   import Avatar from "./Avatar.svelte";
+  import { handleTechnologyType } from "../utils/filterTeacher/index";
 
   export let accessToken: string;
   export let handlePageSelection: (arg0: Page) => void;
   export let handleTeacherSelection: (arg0: User) => void;
 
-  let technologyfilters: Array<{ language: string; proficency: number }> = [];
+  let teacherFilters: TechnologyFilter = [];
   let users: User[] = [];
   let advancedSearch: boolean = false;
-
-  const getSelection = () => {
-    const technologySelected: any = document.getElementById("technologies");
-    if (technologySelected) {
-      technologyfilters.push({
-        language: technologySelected.value,
-        proficency: 5,
-      });
-      technologyfilters = technologyfilters;
-    }
-  };
 
   const handleAdvancedSearch = () => {
     advancedSearch = true;
@@ -27,8 +17,8 @@
 
   const handleTechnologyProficiency = (technology: string) => {
     const proficency: any = document.getElementById("technology-proficiency");
-    technologyfilters.map((thing) => {
-      if (thing.language === technology) {
+    teacherFilters.map((thing) => {
+      if (thing.type === technology) {
         thing.proficency = Number(proficency.value);
       }
     });
@@ -38,10 +28,20 @@
     handleTeacherSelection(selectedTeacher);
     handlePageSelection("teacher");
   };
+
+  const handleMinStarRating = () => {
+    const minStarRating: any = document.getElementById("star-rating");
+  };
 </script>
 
 <label for="technologies">choose a technology:</label>
-<select name="technologies" id="technologies" on:input={getSelection}>
+<select
+  name="technologies"
+  id="technologies"
+  on:input={() => {
+    teacherFilters = handleTechnologyType({ teacherFilters });
+  }}
+>
   <option value="javascript">javascript</option>
   <option value="html">html</option>
   <option value="css">css</option>
@@ -54,22 +54,22 @@
   <option value="tensorflow">tensorflow</option>
 </select>
 
-{#each technologyfilters as filter}
-  <p>{filter.language}</p>
+{#each teacherFilters as filter}
+  <p>{filter.type}</p>
 {/each}
 
 <button on:click={() => handleAdvancedSearch()}>advanced search</button>
 {#if advancedSearch}
   <p>for each technology tell us how proficient the teacher needs to be</p>
   <ul>
-    {#each technologyfilters as technology}
+    {#each teacherFilters as technology}
       <div class="flex">
-        <li>{technology.language}</li>
+        <li>{technology.type}</li>
         <li>{technology.proficency}</li>
         <select
           name="proficiency"
           id="technology-proficiency"
-          on:input={() => handleTechnologyProficiency(technology.language)}
+          on:input={() => handleTechnologyProficiency(technology.type)}
         >
           <option value="1">1</option>
           <option value="2">2</option>
@@ -85,6 +85,17 @@
       </div>
     {/each}
   </ul>
+
+  <p>
+    only show me search results for teachers that have a minimum star rating of
+  </p>
+  <select name="star-rating" id="star-rating" on:input={handleMinStarRating}>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
 {/if}
 
 <button
@@ -92,7 +103,7 @@
     users = await (
       await fetch(`${apiBaseUrl}/users`, {
         method: "POST",
-        body: JSON.stringify(technologyfilters),
+        body: JSON.stringify(teacherFilters),
         headers: {
           "content-type": "application/json",
           authorization: `Bearer ${accessToken} `,

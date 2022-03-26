@@ -24,3 +24,5 @@ export type User = {
 };
 
 export type Page = "profile" | "contact" | "homepage" | "teacher";
+
+export type TechnologyFilter = Array<{ type: string; proficency: number }>;
