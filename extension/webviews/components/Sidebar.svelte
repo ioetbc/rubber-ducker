@@ -11,7 +11,7 @@
   let todos: Array<{ text: string; completed: boolean }> = [];
   let user: User | null = null;
   let teacher: User | null = null;
-  let accessToken = "";
+  let accessToken: string = "";
   let page: Page = tsvscode.getState()?.page || "profile";
 
   $: tsvscode.setState({ page });
@@ -73,7 +73,7 @@
 {/if}
 
 {#if page === "teacher" && teacher}
-  <Teacher {teacher} />
+  <Teacher {teacher} {accessToken} />
 {/if}
 
 <button on:click={() => handlePageSelection("homepage")}>find teachers</button>

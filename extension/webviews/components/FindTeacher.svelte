@@ -89,17 +89,16 @@
 
 <button
   on:click={async () => {
-    const res = await fetch(`${apiBaseUrl}/users`, {
-      method: "POST",
-      body: JSON.stringify(technologyfilters),
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${accessToken} `,
-      },
-    });
-
-    const resp = await res.json();
-    users = resp;
+    users = await (
+      await fetch(`${apiBaseUrl}/users`, {
+        method: "POST",
+        body: JSON.stringify(technologyfilters),
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${accessToken} `,
+        },
+      })
+    ).json();
   }}>search</button
 >
 <div class="helper-wrapper">

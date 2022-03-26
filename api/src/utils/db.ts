@@ -122,16 +122,53 @@ export const findUser = async ({ github_id }: { github_id: string }) => {
     .catch((e: any) => console.log(e));
 };
 
+export const reviews = async ({ github_id }: { github_id: string }) => {
+  return pool
+    .connect()
+    .then(async (client) => {
+      return client
+        .query(
+          `
+            SELECT *
+            FROM reviews
+            WHERE github_id = $1
+          `,
+          [github_id]
+        )
+        .then((result: any) => {
+          client.release();
+          type Type = { review: string; stars: number };
+          const reviews = result.rows.map((result: Type) => result.review);
+
+          const averageStarRating = (
+            result.rows
+              .map((row: Type) => row.stars)
+              .reduce(
+                (prevValue: number, currentValue: number) =>
+                  prevValue + currentValue,
+                0
+              ) / result.rows.length
+          ).toFixed(0);
+
+          return { reviews, averageStarRating };
+        });
+    })
+    .catch((e: any) => console.log(e));
+};
+
 export const findUsers = async (body: any) => {
   return pool
     .connect()
     .then(async (client) => {
       return client
         .query(
-          `SELECT * from technologies LEFT JOIN user_metadata on technologies.github_id = user_metadata.github_id WHERE ${body.map(
-            (technology: { language: string; proficency: number }) =>
-              `${technology.language} >= ${technology.proficency}`
-          )}`.replaceAll(",", " AND ")
+          `
+            SELECT * FROM technologies
+            LEFT JOIN user_metadata ON technologies.github_id = user_metadata.github_id
+            WHERE ${body.map(
+              (technology: { language: string; proficency: number }) =>
+                `${technology.language} >= ${technology.proficency}`
+            )}`.replaceAll(",", " AND ")
         )
         .then((result: any) => {
           client.release();
@@ -193,6 +230,34 @@ export const createUser = async ({
             [github_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
           );
           client.release();
+        });
+    })
+    .catch((e: any) => console.error("error creating user", e));
+};
+
+export const createReview = async ({
+  review,
+  stars,
+  teacher_id,
+}: {
+  review: string;
+  stars: number;
+  teacher_id: string;
+}) => {
+  return pool
+    .connect()
+    .then(async (client) => {
+      return client
+        .query("INSERT INTO reviews VALUES ($1, $2, $3)", [
+          teacher_id,
+          review,
+          stars,
+        ])
+        .then(async () => {
+          const allReviews = await reviews({ github_id: teacher_id });
+          console.log("allReviews", allReviews);
+          client.release();
+          return allReviews;
         });
     })
     .catch((e: any) => console.error("error creating user", e));

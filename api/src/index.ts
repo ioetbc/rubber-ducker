@@ -2,7 +2,13 @@ import "reflect-metadata";
 import express from "express";
 
 import { authenticateUser } from "./utils/authenticateUser";
-import { findUser, findUsers, updateUser } from "./utils/db";
+import {
+  findUser,
+  findUsers,
+  reviews,
+  updateUser,
+  createReview,
+} from "./utils/db";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import { isAuth } from "./isAuth";
@@ -84,6 +90,24 @@ const main = async () => {
     return;
   });
 
+  app.post("/createReview", isAuth, async (req: any, res) => {
+    const { body, query } = req;
+
+    if (!query.teacher_id) {
+      res.send({ user: null });
+      return;
+    }
+
+    const reviews = await createReview({
+      review: body.review,
+      stars: body.stars,
+      teacher_id: query.teacher_id,
+    });
+
+    res.send(reviews);
+    return;
+  });
+
   app.put("/updateProfile", isAuth, async (req: any, res) => {
     const { userId, body } = req;
 
@@ -95,6 +119,19 @@ const main = async () => {
     const users = await updateUser({ body, github_id: userId });
 
     res.send(users);
+    return;
+  });
+
+  app.get("/reviews", isAuth, async (req: any, res) => {
+    const { query } = req;
+    if (!query.github_id) {
+      res.send({ user: null });
+      return;
+    }
+
+    const userReviews = await reviews({ github_id: query.github_id });
+
+    res.send(userReviews);
     return;
   });
 
