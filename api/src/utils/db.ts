@@ -166,8 +166,8 @@ export const findUsers = async (body: any) => {
             SELECT * FROM technologies
             LEFT JOIN user_metadata ON technologies.github_id = user_metadata.github_id
             WHERE ${body.map(
-              (technology: { language: string; proficency: number }) =>
-                `${technology.language} >= ${technology.proficency}`
+              (technology: { type: string; proficency: number }) =>
+                `${technology.type} >= ${technology.proficency}`
             )}`.replaceAll(",", " AND ")
         )
         .then((result: any) => {
