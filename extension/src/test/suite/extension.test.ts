@@ -10,13 +10,22 @@ suite("filter teacher", () => {
   describe("returns teachers matching the correct filters", () => {
     it("should return a correctly shaped array", () => {
       const result = handleTechnologyType({
-        teacherFilters: [{ type: "node", proficency: 3 }],
-        value: "react",
+        teacherFilters: {
+          technologies: [{ type: "react", proficency: 2 }],
+          minStarRating: 4,
+          teacherPrice: 200,
+        },
+        value: "node",
       });
-      expect(result).to.eql([
-        { type: "node", proficency: 3 },
-        { type: "react", proficency: 5 },
-      ]);
+      console.log("result", result);
+      expect(result).to.eql({
+        technologies: [
+          { type: "react", proficency: 2 },
+          { type: "node", proficency: 5 },
+        ],
+        minStarRating: 4,
+        teacherPrice: 200,
+      });
     });
   });
 
@@ -25,15 +34,23 @@ suite("filter teacher", () => {
       const result = handleTechnologyProficiency({
         value: 10,
         technology: "node",
-        teacherFilters: [
-          { type: "node", proficency: 3 },
+        currentFilters: {
+          technologies: [
+            { type: "node", proficency: 3 },
+            { type: "postgres", proficency: 5 },
+          ],
+          minStarRating: 4,
+          teacherPrice: 200,
+        },
+      });
+      expect(result).to.eql({
+        technologies: [
+          { type: "node", proficency: 10 },
           { type: "postgres", proficency: 5 },
         ],
+        minStarRating: 4,
+        teacherPrice: 200,
       });
-      expect(result).to.eql([
-        { type: "node", proficency: 10 },
-        { type: "postgres", proficency: 5 },
-      ]);
     });
   });
 });
