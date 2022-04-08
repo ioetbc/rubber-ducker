@@ -4,7 +4,15 @@
 
 1. run `npm run watch` this will compile the api typescript code into a folder called dist using webpack
 
-1. run `npm run dev` to start the server
+2. run `npm run dev` to start the server
+
+## Database setup
+
+To ssh into the db thats hosted on postgres run this command (find the values in heroku > rubber-ducker > settings > database credentials)
+`psql --host= --port=5432 --username= --password --dbname=`
+
+To run a migration ssh into the db using the above command then run
+`psql \i api/src/migrations/reviews.sql`
 
 ## Authenitcation logic
 

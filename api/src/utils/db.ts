@@ -2,9 +2,13 @@ import { Pool } from "pg";
 import { TechnologyFilter } from "src/types";
 
 const pool = new Pool({
-  port: 5432,
-  database: "rubber-ducker",
-  host: "localhost",
+  connectionString: process.env.POSTGRES_DB_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  // port: 5432,
+  // database: "rubber-ducker",
+  // host: "localhost",
 });
 
 export const updateUser = async ({
