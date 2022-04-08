@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { TechnologyFilter } from "src/types";
 
 const pool = new Pool({
   port: 5432,
@@ -135,28 +136,47 @@ export const reviews = async ({ github_id }: { github_id: string }) => {
           `,
           [github_id]
         )
-        .then((result: any) => {
-          client.release();
-          type Type = { review: string; stars: number };
-          const reviews = result.rows.map((result: Type) => result.review);
+        .then(
+          (
+            result: any
+          ): {
+            github_id: string;
+            reviews: string[];
+            averageStarRating: string;
+          } => {
+            client.release();
+            type Type = { review: string; stars: number };
+            const reviews = result.rows.map((result: Type) => result.review);
 
-          const averageStarRating = (
-            result.rows
-              .map((row: Type) => row.stars)
-              .reduce(
-                (prevValue: number, currentValue: number) =>
-                  prevValue + currentValue,
-                0
-              ) / result.rows.length
-          ).toFixed(0);
+            const averageStarRating = (
+              result.rows
+                .map((row: Type) => row.stars)
+                .reduce(
+                  (prevValue: number, currentValue: number) =>
+                    prevValue + currentValue,
+                  0
+                ) / result.rows.length
+            ).toFixed(0);
 
-          return { reviews, averageStarRating };
-        });
+            return { github_id, reviews, averageStarRating };
+          }
+        );
     })
-    .catch((e: any) => console.log(e));
+    .catch((e: any) => {
+      throw new Error(e);
+    });
 };
 
-export const findUsers = async (body: any) => {
+export const findTeachers = async ({
+  minStarRating,
+  technologies,
+  maxTeacherPrice,
+}: {
+  github_id: string;
+  minStarRating: number;
+  technologies: TechnologyFilter[];
+  maxTeacherPrice: number;
+}) => {
   return pool
     .connect()
     .then(async (client) => {
@@ -165,14 +185,34 @@ export const findUsers = async (body: any) => {
           `
             SELECT * FROM technologies
             LEFT JOIN user_metadata ON technologies.github_id = user_metadata.github_id
-            WHERE ${body.map(
+            WHERE ${technologies.map(
               (technology: { type: string; proficency: number }) =>
                 `${technology.type} >= ${technology.proficency}`
             )}`.replaceAll(",", " AND ")
         )
-        .then((result: any) => {
-          client.release();
-          return result.rows;
+        .then(async (result: any) => {
+          const filterByPrice = result.rows.filter((user: any) => {
+            console.log(user.per_hour_rate);
+            return Number(user.per_hour_rate) <= Number(maxTeacherPrice);
+          });
+
+          const reviewResults = await Promise.all(
+            filterByPrice.map((user: any) => {
+              return reviews({ github_id: user.github_id });
+            })
+          );
+
+          const filterByRatings = reviewResults.filter(
+            (user) => Number(user.averageStarRating) >= Number(minStarRating)
+          );
+
+          const allUserData = await Promise.all(
+            filterByRatings.map((user: any) => {
+              return findUser({ github_id: user.github_id });
+            })
+          );
+
+          return allUserData;
         });
     })
     .catch((e: any) => console.log(e));

@@ -4,7 +4,7 @@ import express from "express";
 import { authenticateUser } from "./utils/authenticateUser";
 import {
   findUser,
-  findUsers,
+  findTeachers,
   reviews,
   updateUser,
   createReview,
@@ -71,9 +71,8 @@ const main = async () => {
     return;
   });
 
-  app.post("/users", isAuth, async (req: any, res) => {
+  app.post("/findTeachers", isAuth, async (req: any, res) => {
     const { userId, body } = req;
-
     if (!userId) {
       res.send({ user: null });
       return;
@@ -84,7 +83,12 @@ const main = async () => {
       return;
     }
 
-    const users = await findUsers(body);
+    const users = await findTeachers({
+      github_id: userId,
+      minStarRating: body.minStarRating,
+      technologies: body.technologies,
+      maxTeacherPrice: body.teacherPrice,
+    });
 
     res.send(users);
     return;

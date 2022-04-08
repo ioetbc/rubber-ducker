@@ -33,7 +33,6 @@ export type TechnologyFilter = {
 export type TeacherFilters = {
   minStarRating: number;
   technologies: TechnologyFilter[];
-  teacherPrice: TeacherPrice;
 };
 
 export type TechnologyTypes =
@@ -49,5 +48,3 @@ export type TechnologyTypes =
   | "tensorflow";
 
 export type ProficiencyTypes = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-
-export type TeacherPrice = 0 | 10 | 50 | 75 | 100 | 125 | 150 | 175 | 200;

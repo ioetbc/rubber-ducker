@@ -4,6 +4,8 @@
 
 1. run `npm run watch` this will compile the api typescript code into a folder called dist using webpack
 
+1. run `npm run dev` to start the server
+
 ## Authenitcation logic
 
 1. using a package called `passport` along with `passport-github` to help with the authentication logic.
